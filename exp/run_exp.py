@@ -12,7 +12,7 @@ import pandas as pd
 
 if __name__ =='__main__':
 
-    MOVIELENS_DATA_SIZE = '100k'
+    MOVIELENS_DATA_SIZE = '10m'
 
     data = movielens.load_pandas_df(
                 size=MOVIELENS_DATA_SIZE,

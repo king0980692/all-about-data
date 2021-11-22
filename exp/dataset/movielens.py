@@ -74,6 +74,8 @@ DATA_FORMAT = {
     "20m": _DataFormat(",", "ml-20m/ratings.csv", True, ",", "ml-20m/movies.csv", True),
 }
 
+ERROR_MOVIE_LENS_SIZE = "Invalid data size. Should be one of {100k, 1m, 10m, or 20m}"
+
 #
 #  ----------------------------------------------------------------
 #
