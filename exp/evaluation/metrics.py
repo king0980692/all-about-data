@@ -10,8 +10,8 @@ from sklearn.metrics import (
 )
 
 
-DEFAULT_USER_COL = "u_id"
-DEFAULT_ITEM_COL = "i_id"
+DEFAULT_USER_COL = "userID"
+DEFAULT_ITEM_COL = "itemID"
 DEFAULT_RATING_COL = "rating"
 DEFAULT_PREDICTION_COL = "prediction"
 DEFAULT_K = 10

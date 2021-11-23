@@ -6,7 +6,9 @@ from utils.gen_prediction import gen_ranking_predictions
 from evaluation.metrics import (df_rmse, df_mae, map_at_k, ndcg_at_k, precision_at_k,
                                                      recall_at_k, get_top_k_items)
 
+from model.surprise.surprise_utils import predict, compute_ranking_predictions
 
+import surprise
 from sklearn.metrics import mean_absolute_error
 
 import pandas as pd
@@ -15,7 +17,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--model", help="specify the model")
+    #parser.add_argument("--model", help="specify the model")
 
     parser.add_argument("--dataset", help="specify the dataset")
 
@@ -26,43 +28,39 @@ if __name__ == '__main__':
 
     MOVIELENS_DATA_SIZE = args.size
 
+
     data = movielens.load_pandas_df(
                 size=MOVIELENS_DATA_SIZE,
-                header=["u_id", "i_id", "rating"]
-                #header=["userID", "itemID", "rating"]
+                header=["userID", "itemID", "rating"]
             )
-
     train, test = splitter.python_random_split(data, 0.75)
-    #val = data.drop(train.index.tolist()).sample(frac=0.5, random_state=8)
 
+    train_set = surprise.Dataset.load_from_df(train, reader=surprise.Reader('ml-100k')).build_full_trainset()
 
-    svd = funk_svd.SVD(lr=0.001, reg=0.005, n_epochs=30, n_factors=200,
-                early_stopping=True, shuffle=False, min_rating=1, max_rating=5)
+    svd = surprise.SVD(random_state=0, n_factors=150, n_epochs=30, verbose=True)
 
     with Timer() as train_time:
-        #svd.fit(X=train, X_val=val)
-        svd.fit(X=train)
+        svd.fit(train_set)
+
     print("Took {:.2f} seconds for training.".format(train_time.interval))
 
-    predictions = svd.predict(test)
-
+    #predictions = svd.predict(test)
+    predictions = predict(svd, test, usercol='userID', itemcol='itemID')
 
     with Timer() as test_time:
-        all_predictions = gen_ranking_predictions(svd, train, usercol='u_id', itemcol='i_id', remove_seen=True)
-
+        all_predictions = compute_ranking_predictions(svd, train, usercol='userID', itemcol='itemID', remove_seen=True)
     print("Took {} seconds for prediction.".format(test_time.interval))
 
 
-
     # evaluate the rating metric with predcions and test
-    eval_rmse = df_rmse(test, predictions, col_user="u_id", col_item="i_id")
-    eval_mae = df_mae(test, predictions, col_user="u_id", col_item="i_id")
+    eval_rmse = df_rmse(test, predictions)
+    eval_mae = df_mae(test, predictions)
 
     k = 10
-    eval_map = map_at_k(test, all_predictions, col_user="u_id", col_item="i_id", col_prediction='prediction', k=k)
-    eval_ndcg = ndcg_at_k(test, all_predictions, col_user="u_id", col_item="i_id", col_prediction='prediction', k=k)
-    eval_precision = precision_at_k(test, all_predictions, col_user="u_id", col_item="i_id", col_prediction='prediction', k=k)
-    eval_recall = recall_at_k(test, all_predictions, col_user="u_id", col_item="i_id", col_prediction='prediction', k=k)
+    eval_map = map_at_k(test, all_predictions, col_prediction='prediction', k=k)
+    eval_ndcg = ndcg_at_k(test, all_predictions, col_prediction='prediction', k=k)
+    eval_precision = precision_at_k(test, all_predictions, col_prediction='prediction', k=k)
+    eval_recall = recall_at_k(test, all_predictions, col_prediction='prediction', k=k)
 
 
     print("\n\n")
