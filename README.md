@@ -1,6 +1,16 @@
 # Recommender system note & exp
 This repo will record the note about recommender system and some experiment code and result
 
+### prerequisite
+```
+pip install -r requirement.txt
+```
+
+### Usage
+```
+cd exp/
+python3 run_exp.py --dataset movielens --size 100k
+```
 ## Experiment environment
 
 ### fold structure
@@ -30,3 +40,4 @@ This folder has some metric functions to evaluate the model result which includi
 #### util
 
 This is foldeer provide some utils for some exp to use.
+
