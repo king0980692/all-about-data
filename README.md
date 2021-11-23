@@ -9,7 +9,7 @@ pip install -r requirement.txt
 ### Usage
 ```
 cd exp/
-python3 run_exp.py --dataset movielens --size 100k
+python3 run_exp_svd.py --dataset movielens --size 100k
 ```
 ## Experiment environment
 
